@@ -25,6 +25,8 @@ Base.@kwdef mutable struct MrESN
     R_out           ::Mtx           = zeros(1,1)
     beta            ::Float64       = 1.0e-8
     error           ::Float64       = 1.0
+    constant_terms  ::Int16         = 1
+    constant_value  ::Float64       = 1.0
     wrong_class     ::Array{Any}    = []
     classes_Y       ::Array{Any}    = []
     Y_target        ::Array{Any}    = []

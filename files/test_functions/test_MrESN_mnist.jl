@@ -20,7 +20,7 @@ function __do_test_MrESN_mnist!(mrE, args::Dict)
             end
             update(mrE.esns[i], args[:test_data][:,:,t], f )
         end
-        x = vcat(f(args[:test_data][:,:,t]),[es.x for es in mrE.esns]...)
+        x = vcat(f(args[:test_data][:,:,t]),[es.x for es in mrE.esns]..., f([mrE.constant_value for _ in 1:mrE.constant_terms ]) )
 
         pairs  = []
         for c in args[:classes]

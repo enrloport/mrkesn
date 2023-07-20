@@ -9,7 +9,7 @@ function __fill_X_MrESN_mnist!(mrE, args::Dict )
             end
             update(mrE.esns[i], args[:train_data][:,:,t], f )
         end
-        mrE.X[:,t] = vcat(f(args[:train_data][:,:,t]),[es.x for es in mrE.esns]...)
+        mrE.X[:,t] = vcat(f(args[:train_data][:,:,t]),[es.x for es in mrE.esns]...,f([mrE.constant_value for _ in 1:mrE.constant_terms ]))
     end
 end
 
@@ -37,7 +37,7 @@ end
 
 function __do_train_MrESN_mnist!(mrE, args)
     num   = args[:train_length]
-    mrE.X = zeros( sum([esn.R_size for esn in mrE.esns]) + args[:image_size][1]*args[:image_size][2] , num)
+    mrE.X = zeros( sum([esn.R_size for esn in mrE.esns]) + args[:image_size][1]*args[:image_size][2] + mrE.constant_terms  , num)
     for i in 1:length(mrE.esns)
         mrE.esns[i].x = zeros( mrE.esns[i].R_size, 1)
     end

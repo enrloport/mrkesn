@@ -6,17 +6,6 @@ CUDA.allowscalar(false)
 using Wandb
 
 
-#Generalised Logistic Curve
-# A: Upper asymptote
-# K: Lower asymptote
-# C: Typically takes a value of 1. Otherwise, the upper asymptote is A + (K-A) / (C^(1/v))
-# B: Growth rate
-# v > 0: affects near which asymptote maximum growth occurs
-# Q: is related to the value glc(0)
-function glc(x; A=-1.0, K=1.0, C=1.0, B=1.0, v=1.0, Q=1.0)
-    return A + ( (K-A) / (C + Q*MathConstants.e^(-B*x) )^(1/v) )
-end
-
 # Random.seed!(42)
 
 # MNIST dataset
@@ -27,10 +16,10 @@ test_x , test_y  = MNIST(split=:test)[:]
 #train_x, train_y = FashionMNIST(split=:train)[:]
 #test_x, test_y = FashionMNIST(split=:test)[:]
 
-repit =500
+repit =1#500
 _params = Dict{Symbol,Any}(
      :gpu           => true
-    ,:wb            => true
+    ,:wb            => false
     ,:wb_logger_name=> "MRESN_glc_mnist_GPU"
     ,:classes       => [0,1,2,3,4,5,6,7,8,9]
     ,:beta          => 1.0e-10
@@ -38,9 +27,22 @@ _params = Dict{Symbol,Any}(
     ,:test_length   => size(test_y)[1]
     ,:train_f       => __do_train_MrESN_mnist!
     ,:test_f        => __do_test_MrESN_mnist!
-    # ,:B => 0.007
-    # ,:K => 1.5
+    ,:B => 0.007
+    ,:K => 1.5
 )
+const _B = _params[:B]
+const _K = _params[:K]
+
+#Generalised Logistic Curve
+# A: Upper asymptote
+# K: Lower asymptote
+# C: Typically takes a value of 1. Otherwise, the upper asymptote is A + (K-A) / (C^(1/v))
+# B: Growth rate
+# v > 0: affects near which asymptote maximum growth occurs
+# Q: is related to the value glc(0)
+function glc(x; A=-_K, K=_K, C=1.0, B=_B, v=1.0, Q=1.0)
+    return A + ( (K-A) / (C + Q*MathConstants.e^(-B*x) )^(1/v) )
+end
 
 
 #for i in -10:10
@@ -100,6 +102,8 @@ function do_batch(_params_esn, _params,sd)
             ,beta=_params[:beta] 
             ,train_function = _params[:train_f]
             ,test_function = _params[:test_f]
+            ,constant_terms = _params[:num_esns]
+            ,constant_value = 1.0
             )
         tm_train = @elapsed begin
             mrE.train_function(mrE,_params)
@@ -141,7 +145,7 @@ test_x  = transform_mnist(test_x, sz, _params[:test_length])
 for _ in 1:repit
     sd = rand(1:10000)
     Random.seed!(sd)
-    _params[:num_esns] = 20 # rand([10,15,20,25])
+    _params[:num_esns] = 2 # rand([10,15,20,25])
     _params[:num_hadamard] = 0 # rand([1,2])
     _params_esn = Dict{Symbol,Any}(
         :R_scaling => rand(Uniform(0.5,1.5),_params[:num_esns])
@@ -149,7 +153,7 @@ for _ in 1:repit
         ,:density  => rand(Uniform(0.01,0.7),_params[:num_esns])
         ,:rho      => rand(Uniform(0.5,1.5),_params[:num_esns])
         ,:sigma    => rand(Uniform(0.5,1.5),_params[:num_esns])
-        ,:nodes    => [1000 for _ in 1:_params[:num_esns] ] # rand([500, px*px ,1000],_params[:num_esns])
+        ,:nodes    => [500 for _ in 1:_params[:num_esns] ] # rand([500, px*px ,1000],_params[:num_esns])
         ,:sgmds    => rand([glc],_params[:num_esns])
         # ,:sgmds    => [ ln for _ in 1:_params[:num_esns] ]
         # ,:bs       => rand(Uniform(1,4),_params[:num_esns])
@@ -180,6 +184,7 @@ for _ in 1:repit
         , "sigmas"             => _params_esn[:sigma]
         , "R_scalings"         => _params_esn[:R_scaling]
         , "glcs"               => _params_esn[:glcs]
+        , "Constant terms"     => _params[:num_esns]
         # , "B" => _params[:B]
         # , "K" => _params[:K]
         )

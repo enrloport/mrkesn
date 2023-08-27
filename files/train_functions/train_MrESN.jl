@@ -7,6 +7,11 @@ function update(esn,u, f)
     # println(typeof(u))
     # println(typeof(esn.R))
     # println(typeof(esn.x))
+
+    # println(size(esn.R_in))
+    # println(size(u))
+    # println(size(esn.R))
+    # println(size(esn.x))
     esn.x[:] = (1-esn.alpha).*esn.x .+ esn.alpha.*esn.sgmd.( esn.F_in(f,u) .+ esn.R*esn.x)
 end
 

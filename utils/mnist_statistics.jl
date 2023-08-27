@@ -130,6 +130,15 @@ x,y = train_x[:,:,xmpl]', train_y[xmpl]
 Images.Gray.(
     hcat(
         vcat(
+             x 
+            # ,x
+            ,x
+            ,x
+            ,x
+            ,x
+        )
+        ,
+        vcat(
              x .* means[y]'
             # ,x .* b_means[y]'
             ,x .* medians[y]'

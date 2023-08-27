@@ -17,6 +17,25 @@ Base.@kwdef mutable struct ESN
     F_in      ::Function= (f,u) -> hadamard ? R_in .* f(u) : R_in * f(u)
 end
 
+Base.@kwdef mutable struct KESN
+    R         ::Mtx     = zeros(1,1)
+    R_in      ::Mtx     = zeros(1,1)
+    K_in      ::Mtx     = zeros(1,1)
+    R_fdb     ::Mtx     = zeros(1,1)
+    R_out     ::Mtx     = zeros(1,1)
+    Y         ::Mtx     = zeros(1,1)
+    X         ::Mtx     = zeros(1,1)
+    x         ::Mtx     = zeros(1,1)
+    R_size    ::Int16   = size(R,1)
+    R_scaling ::Float64 = 1.0
+    alpha     ::Float64 = 0.5
+    beta      ::Float64 = 1.0e-8
+    rho       ::Float64 = 1.0
+    sigma     ::Float64 = 1.0
+    sgmd      ::Function= tanh
+    F_in      ::Function= (f,u) -> R_in * f(u)
+end
+
 Base.@kwdef mutable struct MrESN
     esns            ::Array{Any}
     train_function  ::Function      = __do_train_MrESN!

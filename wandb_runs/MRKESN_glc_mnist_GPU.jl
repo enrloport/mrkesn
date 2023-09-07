@@ -27,8 +27,8 @@ _params = Dict{Symbol,Any}(
     ,:test_length   => size(test_y)[1]
     ,:train_f       => __do_train_MrKESN_mnist!
     ,:test_f        => __do_test_MrKESN_mnist!
-    ,:B => 0.007
-    ,:K => 1.5
+    ,:B => 1.0
+    ,:K => 0.01
 )
 const _B = _params[:B]
 const _K = _params[:K]
@@ -45,17 +45,9 @@ function glc(x; A=-_K, K=_K, C=1.0, B=_B, v=1.0, Q=1.0)
 end
 
 
-#for i in -10:10
-#    v = i
-#    println(v," ", glc(v))
-#end
 
-# b = 0.1
-# max = 4
-# x = [x for x in -1000:10:1000]
-# y = [glc(i/50;B=b) for i in x ]
-# ys = [ [glc(i/50;B=b/10) for i in x ] for b in 1:max]
-# plot(x,ys; title="B influence in glc", labels= [b/10 for b in 1:max]' )
+
+
 
 function do_batch(_params_esn, _params,sd)
     sz       = _params[:image_size]
